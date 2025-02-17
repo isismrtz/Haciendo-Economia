@@ -136,6 +136,7 @@ Base_4_long <- Base_4 %>%
 
 #Archivo para cargar a Power BI
 writexl::write_xlsx(list(
-  "Negocios"=Base_3long,"Uso Internet" =Base_4_long,"Proporciones"=Base_long), 
+  "Negocios"=Base_3_long,"Uso Internet" =Base_4_long,"Proporciones"=Base_long), 
   "Tablas Excel Power BI.xlsx"
 )
+
