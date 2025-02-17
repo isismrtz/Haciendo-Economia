@@ -75,8 +75,8 @@ names(Base_3) <- c("Población","Ciudad","Tienda", "Comida preparada",
                      "Ferretería y afines")
 
 
-#Base de solo los establecimientos que usan internet por actividad económica
-#Agrupada por municipio
+#Base de los establecimientos que usan internet por actividad económica
+#Agrupada por ciudad
 Base_4 <- Base_2 %>%
   reframe(across(starts_with("act"),~(.*uso_internet))) %>%
   mutate(Ciudad =Base_2$Ciudad) %>% 
@@ -99,8 +99,11 @@ names(Base_fin) <- c("Población","Ciudad","Tienda", "Comida preparada",
                      "Papelería y Comunicaciones", "Vida Nocturna", 
                      "Productos Bajo Inventario", "Salud","Servicios",
                      "Ferretería y afines") 
-  
+
 Base_fin <- Base_fin %>% rename(`Ciudad o Municipio`= `Ciudad`)
+
+
+#Archivo excel (presentación)
 
 writexl::write_xlsx(
   list(
@@ -108,45 +111,31 @@ writexl::write_xlsx(
     "Total Negocios" = Base_3,
     "Negocios con Internet" = Base_4
   ),
-  "Tabla Excel Proporciones.xlsx"
+  "Tablas Excel Presentación.xlsx"
 )
 
 
-# Transformar la base a formato largo
+# Transformar las bases a formato largo (Power BI)
 Base_long <- Base_fin %>%
   pivot_longer(cols = -c(Población, `Ciudad o Municipio`),
                names_to = "Tipo de negocio",
                values_to = "Proporción de uso de Internet")
 
-writexl::write_xlsx(Base_long,"Tabla Excel Proporciones(Power BI).xlsx")
 
-#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-#Verificación de la información de la tabla
+Base_3_long <- Base_3 %>%
+  pivot_longer(cols = -c(Población, Ciudad), 
+               names_to = "Tipo de negocio", 
+               values_to = "Cantidad de negocios")
 
-#no hay ferreterías en zipaquirá
-info<- Base %>% 
-  filter(Munic_Dept==25899) %>% 
-  filter(actG11==1)
 
-#no hay negocios de "productos bajo inventario" en Girardot
-info_1<- Base %>%
-  filter(Munic_Dept==25307) %>% 
-  filter(actG8==1)
+Base_4_long <- Base_4 %>%
+  pivot_longer(cols = -c(Población, Ciudad), 
+               names_to = "Tipo de negocio", 
+               values_to = "Negocios con Internet")
 
-#No hay tiendas de ropa con internet en Girardot
-info_2<- Base %>% 
-  filter(uso_internet==1) %>% 
-  filter(Munic_Dept==25307) %>% 
-  filter(actG4==1)
 
-#No hay tiendas de otras variedades con internet en Girardot
-info_3<- Base %>% 
-  filter(uso_internet==1) %>% 
-  filter(Munic_Dept==25307) %>% 
-  filter(actG5==1)
-
-#No hay ferreterías y afines con internet en pereira
-info_4<- Base %>% 
-  filter(uso_internet==1) %>% 
-  filter(actG11==1)
-
+#Archivo para cargar a Power BI
+writexl::write_xlsx(list(
+  "Negocios"=Base_3long,"Uso Internet" =Base_4_long,"Proporciones"=Base_long), 
+  "Tablas Excel Power BI.xlsx"
+)
